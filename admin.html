@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Animeoiz Admin - Manage Content</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f5f5f7; padding: 50px; }
+        .admin-box { max-width: 500px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin: auto; }
+        h1 { font-size: 24px; margin-bottom: 20px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #d2d2d7; border-radius: 10px; outline: none; }
+        button { width: 100%; padding: 12px; background: #0071e3; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; margin-top: 10px;}
+        .del-btn { background: #ff3b30; padding: 5px 10px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-box">
+        <h1>Add New Anime</h1>
+        <input type="text" id="animeName" placeholder="Anime Name (e.g. Naruto)">
+        <input type="text" id="animeImg" placeholder="Thumbnail URL (Image Link)">
+        <input type="text" id="animeId" placeholder="Video ID or Link">
+        <button onclick="saveAnime()">Publish to Home</button>
+
+        <div id="current-list" style="margin-top: 30px;">
+            <h3>Current Live Anime:</h3>
+            <div id="manage-items"></div>
+        </div>
+        <br>
+        <a href="index.html" style="text-decoration:none; color:#0071e3; font-size:14px;">← Back to Home</a>
+    </div>
+
+    <script>
+        function saveAnime() {
+            const name = document.getElementById('animeName').value;
+            const img = document.getElementById('animeImg').value;
+            const id = document.getElementById('animeId').value;
+
+            if(name && img) {
+                let list = JSON.parse(localStorage.getItem('animeData')) || [];
+                list.push({ name, img, id });
+                localStorage.setItem('animeData', JSON.stringify(list));
+                alert("Anime Added Successfully!");
+                location.reload();
+            }
+        }
+
+        function loadItems() {
+            let list = JSON.parse(localStorage.getItem('animeData')) || [];
+            let container = document.getElementById('manage-items');
+            container.innerHTML = list.map((item, index) => `
+                <div class="list-item">
+                    <span>${item.name}</span>
+                    <button class="del-btn" onclick="deleteAnime(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteAnime(index) {
+            let list = JSON.parse(localStorage.getItem('animeData')) || [];
+            list.splice(index, 1);
+            localStorage.setItem('animeData', JSON.stringify(list));
+            loadItems();
+        }
+
+        loadItems();
+    </script>
+</body>
+</html>
