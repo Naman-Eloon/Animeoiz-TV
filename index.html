@@ -3,176 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animeoiz TV - Premium Hindi Anime</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Animeoiz TV - Master Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        :root { --p-orange: #ff4500; --p-dark: #050505; --p-card: #111; --p-text: #ffffff; --p-dim: #a0a0a0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #fff; color: #1d1d1f; overflow-x: hidden; }
+        body { background-color: var(--p-dark); color: var(--p-text); overflow-x: hidden; scroll-behavior: smooth; }
 
         /* Navigation */
         nav {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 5%; height: 52px; background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px); position: fixed; width: 100%; top: 0; z-index: 1000;
-            border-bottom: 0.5px solid rgba(0,0,0,0.1);
+            padding: 0 5%; height: 70px; background: rgba(0,0,0,0.98);
+            position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 2px solid var(--p-orange);
         }
-        .nav-left { display: flex; align-items: center; gap: 15px; }
-        .icon-btn { background: none; border: none; cursor: pointer; color: #1d1d1f; padding: 8px; border-radius: 50%; }
-        .logo { font-weight: 700; font-size: 20px; text-decoration: none; color: #1d1d1f; letter-spacing: -0.5px; }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-weight: 800; font-size: 24px; color: var(--p-orange); text-decoration: none; text-transform: uppercase; }
+        .logo span { color: white; }
+        .icon-btn { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
+        .icon-svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
 
-        /* Search Strip (YouTube Style) */
-        .search-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 52px;
-            background: #fff; z-index: 1100; display: none; align-items: center; padding: 0 5%;
-        }
-        .search-container input { flex: 1; height: 40px; border: none; outline: none; font-size: 18px; margin-left: 15px; }
-        
-        /* Sidebar */
+        /* YouTube Style Search Strip */
+        #search-overlay { position: fixed; inset: 0; background: var(--p-dark); z-index: 2100; display: none; flex-direction: column; }
+        .search-header { display: flex; align-items: center; padding: 0 5%; height: 70px; border-bottom: 1px solid #222; background: #000; }
+        .search-header input { flex: 1; border: none; outline: none; background: none; color: white; font-size: 18px; margin: 0 15px; }
+        #sugg-box { padding: 10px 0; overflow-y: auto; background: #000; flex: 1; }
+        .sugg-item { padding: 15px 5%; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #111; color: var(--p-dim); transition: 0.2s; }
+        .sugg-item:hover { background: #1a1a1a; color: white; }
+
+        /* Sidebar Menu */
         #sidebar {
-            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-            background: #fff; z-index: 1500; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 60px 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: -320px; width: 300px; height: 100%;
+            background: #000; z-index: 1500; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 90px 25px; border-right: 1px solid var(--p-orange);
         }
         #sidebar.active { left: 0; }
-        .menu-item { display: block; padding: 12px 15px; text-decoration: none; color: #1d1d1f; font-weight: 500; border-radius: 10px; }
-        .menu-item:hover { background: #f5f5f7; color: #0071e3; }
-        #overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1400; display: none; }
+        .menu-link { display: block; padding: 14px 0; color: white; text-decoration: none; font-size: 16px; font-weight: 600; border-bottom: 1px solid #111; text-transform: uppercase; }
+        .menu-link:hover { color: var(--p-orange); }
 
-        /* Hero & Background */
-        .hero {
-            padding: 140px 5% 60px; text-align: center;
-            background: radial-gradient(circle at 50% -20%, #e8faff 0%, #fff 60%),
-                        radial-gradient(circle at 15% 25%, #fff0f5 0%, transparent 35%);
-        }
-        .hero h1 { font-size: 52px; letter-spacing: -1.5px; margin-bottom: 20px; }
-        
-        /* Cards UI */
-        .section-container { padding: 40px 0 60px 5%; }
-        .cards-wrapper { display: flex; overflow-x: auto; gap: 20px; padding-right: 5%; scrollbar-width: none; }
-        .anime-card {
-            min-width: 300px; height: 420px; border-radius: 22px; position: relative;
-            overflow: hidden; background: #eee; transition: 0.4s; cursor: pointer;
-        }
-        .anime-card:hover { transform: scale(0.97); }
-        .anime-card img { width: 100%; height: 100%; object-fit: cover; }
-        .card-overlay { 
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 25px; 
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: #fff; 
-        }
+        /* Hero */
+        .hero { padding: 180px 5% 80px; text-align: center; background: linear-gradient(rgba(5,5,5,0.7), var(--p-dark)), url('https://wallpaperaccess.com/full/19961.jpg'); background-size: cover; background-position: center; }
+        .hero h1 { font-size: clamp(30px, 8vw, 60px); font-weight: 800; line-height: 1.1; }
+        .hero span { color: var(--p-orange); }
 
-        /* Result Screen */
-        #result-screen { display: none; padding: 100px 5%; min-height: 80vh; text-align: center; }
-        .oops-msg { color: #86868b; font-size: 20px; margin-top: 50px; }
-        footer { background: #f5f5f7; padding: 40px 5%; text-align: center; border-top: 0.5px solid #d2d2d7; }
+        /* Sections Grid */
+        .content-area { padding: 40px 5%; }
+        .row-head { margin: 40px 0 20px; display: flex; align-items: center; gap: 12px; }
+        .row-line { height: 30px; width: 4px; background: var(--p-orange); }
+        .row-head h2 { font-size: 20px; text-transform: uppercase; font-weight: 800; }
+        .anime-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; }
+
+        @media (max-width: 1600px) { .anime-grid { grid-template-columns: repeat(8, 1fr); } }
+        @media (max-width: 1100px) { .anime-grid { grid-template-columns: repeat(5, 1fr); } }
+        @media (max-width: 500px) { .anime-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        /* Cards */
+        .card { border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid #1a1a1a; transition: 0.3s; background: #000; }
+        .card:hover { transform: translateY(-5px); border-color: var(--p-orange); box-shadow: 0 10px 20px rgba(255, 69, 0, 0.2); }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+        .card-info { position: absolute; bottom: 0; width: 100%; padding: 8px; background: linear-gradient(transparent, #000); }
+        .card-info h3 { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Oops System */
+        #oops-screen { display: none; text-align: center; padding: 100px 5%; }
+        #oops-screen h1 { font-size: 100px; color: var(--p-orange); margin-bottom: 10px; }
+        .btn-back { display: inline-block; margin-top: 30px; padding: 12px 30px; background: var(--p-orange); color: white; text-decoration: none; border-radius: 5px; font-weight: 800; }
+
+        footer { padding: 50px 5%; text-align: center; border-top: 1px solid #111; color: var(--p-dim); font-size: 13px; }
     </style>
 </head>
 <body>
-    <div id="overlay-bg" onclick="toggleMenu()"></div>
+
+    <div id="overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1400; display:none;" onclick="toggleMenu()"></div>
 
     <nav>
         <div class="nav-left">
             <button class="icon-btn" onclick="toggleMenu()">
-                <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="17" y2="6"></line><line x1="3" y1="10" x2="17" y2="10"></line><line x1="3" y1="14" x2="17" y2="14"></line></svg>
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
             </button>
-            <a href="index.html" class="logo">Animeoiz TV</a>
+            <a href="index.html" class="logo">ANIMEOIZ<span>TV</span></a>
         </div>
-        <button class="icon-btn" onclick="openSearch()">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6"></circle><line x1="14" y1="14" x2="18" y2="18"></line></svg>
+        <button class="icon-btn" onclick="toggleSearch(true)">
+            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         </button>
     </nav>
 
-    <div class="search-container" id="search-box">
-        <span onclick="closeSearch()" style="cursor:pointer">✕</span>
-        <input type="text" placeholder="Search Animeoiz..." id="main-search" onkeypress="handleSearch(event)">
+    <div id="search-overlay">
+        <div class="search-header">
+            <button class="icon-btn" onclick="toggleSearch(false)">
+                <svg class="icon-svg" viewBox="0 0 24 24" style="width:22px;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <input type="text" id="main-search" placeholder="Type to search..." oninput="showSuggestions(this.value)" onkeypress="handleEnter(event)">
+        </div>
+        <div id="sugg-box"></div>
     </div>
 
     <div id="sidebar">
-        <a href="index.html" class="menu-item">Home</a>
-        <a href="movies.html" class="menu-item">Movies</a>
-        <a href="series.html" class="menu-item">Series</a>
-        <a href="admin.html" class="menu-item" style="color: #ff3b30; margin-top: 20px;">Admin Panel</a>
+        <a href="index.html" class="menu-link">Home</a>
+        <a href="trending-page.html" class="menu-link" onclick="toggleMenu()">Trending Now</a>
+        <a href="anime-movies.html" class="menu-link" onclick="toggleMenu()">Anime Movies</a>
+        <a href="new.html" class="menu-link" onclick="toggleMenu()">New Releases</a>
+        <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+        <a href="about.html" class="menu-link" onclick="toggleMenu()">About Us</a>
+        <a href="policy.html" class="menu-link" onclick="toggleMenu()">Privacy Policy</a>
+        <a href="disclaimer.html" class="menu-link" onclick="toggleMenu()">Disclaimer</a>
+        <a href="support.html" class="menu-link" onclick="toggleMenu()">Support Us</a>
+        <hr style="border:0; border-top:1px solid #222; margin:15px 0;">
+        <a href="admin.html" class="menu-link" style="color:var(--p-orange)">Admin Console</a>
     </div>
 
-    <main id="main-content">
-        <header class="hero">
-            <h1>The latest. <br>Built for the future.</h1>
-            <p>Premium Hindi dubbed episodes streaming now.</p>
-        </header>
+    <header class="hero" id="hero-area">
+        <h1>UNLIMITED <span>HINDI ANIME</span> FOR THE FANS</h1>
+        <p>Professional Deployment Node. High Quality Downloads.</p>
+    </header>
 
-        <section class="section-container">
-            <div class="cards-wrapper" id="anime-list-container">
-                </div>
-        </section>
-    </main>
+    <main class="content-area" id="master-container">
+        </main>
 
-    <div id="result-screen">
-        <div id="result-content"></div>
-        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; border-radius:20px; border:none; background:#0071e3; color:#fff; cursor:pointer;">Go Back</button>
+    <div id="oops-screen">
+        <h1>OOPS!</h1>
+        <p>The entity you are looking for does not exist in our database.</p>
+        <a href="index.html"         class="btn-back">Refresh</a>
     </div>
 
-    <footer><p>© 2026 Animeoiz TV. Premium Experience.</p></footer>
+    <footer><p>© 2026 Animeoiz TV. Made for the Community.</p></footer>
 
     <script>
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            const overlay = document.getElementById('overlay-bg');
-            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        const S_URL = 'https://kmgswiiexccducktksim.supabase.co';
+        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttZ3N3aWlleGNjZHVja3Rrc2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4Njk0NjEsImV4cCI6MjA4NTQ0NTQ2MX0.4GUcWDwnmfs8RKDaZBdr9QtxJnv4siFW8Qyvy9LHIQY';
+        const _sb = supabase.createClient(S_URL, S_KEY);
+
+        const CATEGORIES = ["Trending Now", "Latest Uploads", "Popular Series", "Top Rated", "Action Pack", "Romance Special", "Movies Node", "Ongoing Series", "Completed Gems", "Recommended for You"];
+        let animeData = [];
+
+        window.onload = async () => {
+            const { data } = await _sb.from('anime_links').select('*').order('created_at', { ascending: false });
+            if (data) { animeData = data; renderRows(); }
+        };
+
+        function renderRows() {
+            const container = document.getElementById('master-container');
+            container.innerHTML = CATEGORIES.map((cat, index) => {
+                const items = animeData.filter(i => i.category === cat);
+                if (items.length === 0) return '';
+                return `
+                    <div class="row-head" id="row-${index}">
+                        <div class="row-line"></div>
+                        <h2>${cat}</h2>
+                    </div>
+                    <div class="anime-grid">
+                        ${items.map(item => `
+                            <div class="card" style="aspect-ratio: ${item.ratio || '2/3'}" onclick="window.open('${item.download_url}', '_blank')">
+                                <img src="${item.thumbnail}">
+                                <div class="card-info"><h3>${item.name}</h3></div>
+                            </div>`).join('')}
+                    </div>`;
+            }).join('');
         }
 
-        function openSearch() {
-            document.getElementById('search-box').style.display = 'flex';
-            document.getElementById('main-search').focus();
+        // Search & Suggestions (YouTube Style)
+        function showSuggestions(val) {
+            const box = document.getElementById('sugg-box');
+            if (!val) { box.innerHTML = ''; return; }
+            const matches = animeData.filter(i => i.name.toLowerCase().includes(val.toLowerCase())).slice(0, 7);
+            box.innerHTML = matches.map(m => `
+                <div class="sugg-item" onclick="executeSearch('${m.name}')">
+                    <svg class="icon-svg" style="width:16px; height:16px; stroke:#555;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <span>${m.name}</span>
+                </div>`).join('');
         }
 
-        function closeSearch() {
-            document.getElementById('search-box').style.display = 'none';
-        }
+        function handleEnter(e) { if(e.key === 'Enter') executeSearch(e.target.value); }
 
-        // Logic to Load Cards from Admin
-        function renderHomeCards() {
-            const container = document.getElementById('anime-list-container');
-            let list = JSON.parse(localStorage.getItem('animeData')) || [];
-            if(list.length === 0) {
-                container.innerHTML = "<p style='padding:20px; color:#86868b'>No anime added yet. Use Admin Panel.</p>";
-                return;
+        function executeSearch(query) {
+            toggleSearch(false);
+            const container = document.getElementById('master-container');
+            const hero = document.getElementById('hero-area');
+            const oops = document.getElementById('oops-screen');
+            
+            const filtered = animeData.filter(i => i.name.toLowerCase().includes(query.toLowerCase()));
+            hero.style.display = 'none';
+            
+            if (filtered.length > 0) {
+                oops.style.display = 'none';
+                container.innerHTML = `<h2 class="row-head">// SEARCH_RESULTS: ${query}</h2><div class="anime-grid">
+                    ${filtered.map(item => `<div class="card" style="aspect-ratio: ${item.ratio || '2/3'}" onclick="window.open('${item.download_url}', '_blank')">
+                    <img src="${item.thumbnail}"><div class="card-info"><h3>${item.name}</h3></div></div>`).join('')}</div>
+                    <center><a href="index.html" class="btn-back">CLOSE SEARCH</a></center>`;
+            } else {
+                container.innerHTML = '';
+                oops.style.display = 'block';
             }
-            container.innerHTML = list.map(item => `
-                <div class="anime-card" onclick="location.href='watch.html?id=${item.id}'">
-                    <img src="${item.img}">
-                    <div class="card-overlay"><h3>${item.name}</h3></div>
-                </div>
-            `).join('');
         }
 
-        // Search Engine Logic
-        function handleSearch(event) {
-            if (event.key === 'Enter') {
-                let query = document.getElementById('main-search').value.toLowerCase();
-                let list = JSON.parse(localStorage.getItem('animeData')) || [];
-                let found = list.find(a => a.name.toLowerCase().includes(query));
-
-                document.getElementById('main-content').style.display = 'none';
-                document.getElementById('result-screen').style.display = 'block';
-                closeSearch();
-
-                if (found && query !== "") {
-                    document.getElementById('result-content').innerHTML = `
-                        <h2>Search Result</h2>
-                        <div class="anime-card" style="margin: 30px auto; min-width:280px;" onclick="location.href='watch.html?id=${found.id}'">
-                            <img src="${found.img}">
-                            <div class="card-overlay"><h3>${found.name}</h3></div>
-                        </div>`;
-                } else {
-                    document.getElementById('result-content').innerHTML = `
-                        <div class="oops-msg">
-                            <h1 style="font-size:60px;">Oops!</h1>
-                            <p>What you are looking for is not here.</p>
-                        </div>`;
-                }
-            }
+        function toggleMenu() { 
+            const s = document.getElementById('sidebar');
+            s.classList.toggle('active');
+            document.getElementById('overlay').style.display = s.classList.contains('active') ? 'block' : 'none';
         }
-
-        window.onload = renderHomeCards;
+        function toggleSearch(show) { 
+            document.getElementById('search-overlay').style.display = show ? 'flex' : 'none';
+            if(show) document.getElementById('main-search').focus();
+        }
     </script>
 </body>
-</html>
+                </html>
+            
